@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gestão de Marcas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1B2A4A;
+    --cream:#F5EFE1;
+    --paper:#FFFDF8;
+    --coral:#E15B3F;
+    --green:#2E6F52;
+    --gold:#C99A3A;
+    --charcoal:#2B2B28;
+    --line: rgba(27,42,74,0.14);
+    --shadow: 0 18px 40px -18px rgba(27,42,74,0.35);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(1200px 600px at 85% -10%, rgba(201,154,58,0.14), transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, rgba(46,111,82,0.12), transparent 55%),
+      var(--cream);
+    color:var(--charcoal);
+    font-family:'Space Grotesk', sans-serif;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:32px 18px 60px;
+  }
+  .brandmark{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom:22px;
+  }
+  .brandmark .mark{
+    width:38px;height:38px;border-radius:50%;
+    background:var(--ink);
+    display:flex;align-items:center;justify-content:center;
+    color:var(--cream);font-family:'Fraunces',serif;font-weight:700;font-size:18px;
+    flex-shrink:0;
+  }
+  .brandmark .txt{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:15px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--ink);
+  }
+  .brandmark .txt small{
+    display:block;
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:400;
+    text-transform:none;
+    letter-spacing:0;
+    font-size:12px;
+    color:rgba(27,42,74,0.55);
+    margin-top:1px;
+  }
+
+  .stage{
+    width:100%;
+    max-width:720px;
+  }
+
+  /* progress rail */
+  .rail{
+    display:flex;
+    gap:6px;
+    margin-bottom:26px;
+    flex-wrap:wrap;
+    justify-content:center;
+  }
+  .dot{
+    width:30px;height:30px;
+    border-radius:8px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:12px;font-weight:600;
+    font-family:'Space Grotesk',sans-serif;
+    border:1.5px solid var(--line);
+    background:var(--paper);
+    color:rgba(27,42,74,0.45);
+    transition:all .25s ease;
+  }
+  .dot.current{
+    border-color:var(--ink);
+    color:var(--ink);
+    transform:scale(1.08);
+  }
+  .dot.done-correct{
+    background:var(--green);
+    border-color:var(--green);
+    color:#fff;
+  }
+  .dot.done-wrong{
+    background:var(--coral);
+    border-color:var(--coral);
+    color:#fff;
+  }
+
+  /* card */
+  .card{
+    position:relative;
+    background:var(--paper);
+    border-radius:22px;
+    border:1px solid var(--line);
+    box-shadow:var(--shadow);
+    padding:38px 34px 32px;
+    overflow:hidden;
+  }
+  .card::before{
+    content:"";
+    position:absolute;
+    top:0;left:0;right:0;height:6px;
+    background:linear-gradient(90deg,var(--ink),var(--gold) 45%,var(--coral));
+  }
+  .eyebrow{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:14px;
+  }
+  .eyebrow .qno{
+    font-family:'Fraunces',serif;
+    font-style:italic;
+    font-weight:500;
+    font-size:15px;
+    color:var(--gold);
+  }
+  .eyebrow .score{
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:0.05em;
+    text-transform:uppercase;
+    color:rgba(27,42,74,0.5);
+  }
+  .question{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:24px;
+    line-height:1.35;
+    color:var(--ink);
+    margin:0 0 10px;
+  }
+  .context{
+    background:rgba(201,154,58,0.1);
+    border-left:3px solid var(--gold);
+    padding:12px 16px;
+    border-radius:6px;
+    font-size:14.5px;
+    line-height:1.55;
+    color:var(--charcoal);
+    margin-bottom:20px;
+    font-style:italic;
+  }
+  .options{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    margin-top:6px;
+  }
+  .opt{
+    display:flex;
+    align-items:flex-start;
+    gap:12px;
+    text-align:left;
+    width:100%;
+    background:var(--paper);
+    border:1.5px solid var(--line);
+    border-radius:13px;
+    padding:13px 16px;
+    font-family:'Space Grotesk',sans-serif;
+    font-size:14.5px;
+    line-height:1.5;
+    color:var(--charcoal);
+    cursor:pointer;
+    transition: transform .15s ease, border-color .15s ease, background .15s ease, box-shadow .15s ease;
+  }
+  .opt:hover:not(.locked){
+    border-color:var(--ink);
+    transform:translateX(3px);
+  }
+  .opt .letter{
+    flex-shrink:0;
+    width:26px;height:26px;
+    border-radius:50%;
+    border:1.5px solid var(--line);
+    display:flex;align-items:center;justify-content:center;
+    font-weight:700;
+    font-size:12.5px;
+    color:var(--ink);
+    background:var(--cream);
+    text-transform:uppercase;
+  }
+  .opt.correct-pick{
+    background: rgba(46,111,82,0.08);
+    border-color:var(--green);
+  }
+  .opt.correct-pick .letter{
+    background:var(--green);
+    border-color:var(--green);
+    color:#fff;
+  }
+  .opt.wrong-pick{
+    background: rgba(225,91,63,0.08);
+    border-color:var(--coral);
+  }
+  .opt.wrong-pick .letter{
+    background:var(--coral);
+    border-color:var(--coral);
+    color:#fff;
+  }
+  .opt.reveal-correct{
+    border-color:var(--green);
+    background:rgba(46,111,82,0.06);
+  }
+  .opt.reveal-correct .letter{
+    background:var(--green);
+    border-color:var(--green);
+    color:#fff;
+  }
+  .opt.dim{
+    opacity:0.45;
+  }
+  .opt.locked{
+    cursor:default;
+  }
+
+  /* stamp */
+  .stamp{
+    position:absolute;
+    top:38px;
+    right:30px;
+    font-family:'Fraunces',serif;
+    font-weight:700;
+    font-size:26px;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    padding:8px 18px;
+    border:3px solid currentColor;
+    border-radius:8px;
+    transform: rotate(8deg) scale(0);
+    opacity:0;
+    pointer-events:none;
+    animation: stamp-in .45s cubic-bezier(.2,1.4,.4,1) forwards;
+  }
+  .stamp.ok{ color:var(--green); }
+  .stamp.no{ color:var(--coral); }
+  @keyframes stamp-in{
+    0%{ transform: rotate(8deg) scale(2.2); opacity:0; }
+    60%{ opacity:1; }
+    100%{ transform: rotate(8deg) scale(1); opacity:0.92; }
+  }
+
+  .explain{
+    margin-top:22px;
+    padding-top:18px;
+    border-top:1px dashed var(--line);
+    animation: fade-up .4s ease both;
+  }
+  @keyframes fade-up{
+    from{ opacity:0; transform:translateY(8px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+  .explain .tag{
+    display:inline-block;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    padding:4px 10px;
+    border-radius:20px;
+    margin-bottom:10px;
+  }
+  .tag.ok{ background:rgba(46,111,82,0.14); color:var(--green); }
+  .tag.no{ background:rgba(225,91,63,0.14); color:var(--coral); }
+  .explain p{
+    font-size:14.5px;
+    line-height:1.65;
+    color:var(--charcoal);
+    margin:0;
+  }
+
+  .nav{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:26px;
+  }
+  .btn{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:600;
+    font-size:14px;
+    border:none;
+    border-radius:12px;
+    padding:12px 22px;
+    cursor:pointer;
+    transition: transform .15s ease, opacity .15s ease;
+  }
+  .btn:active{ transform:scale(0.96); }
+  .btn.primary{
+    background:var(--ink);
+    color:var(--cream);
+  }
+  .btn.primary:hover{ opacity:0.88; }
+  .btn.ghost{
+    background:transparent;
+    color:rgba(27,42,74,0.5);
+    padding:12px 6px;
+  }
+  .btn:disabled{
+    opacity:0.35;
+    cursor:not-allowed;
+  }
+
+  /* results screen */
+  .results{
+    text-align:center;
+    padding:20px 10px 6px;
+  }
+  .results .big{
+    font-family:'Fraunces',serif;
+    font-weight:700;
+    font-size:56px;
+    color:var(--ink);
+    line-height:1;
+    margin-bottom:6px;
+  }
+  .results .sub{
+    font-size:14px;
+    color:rgba(27,42,74,0.6);
+    margin-bottom:26px;
+  }
+  .seal{
+    width:96px;height:96px;
+    border-radius:50%;
+    border:3px solid var(--gold);
+    display:flex;align-items:center;justify-content:center;
+    margin:0 auto 22px;
+    font-family:'Fraunces',serif;
+    font-style:italic;
+    font-size:13px;
+    color:var(--gold);
+    text-align:center;
+    line-height:1.2;
+    padding:10px;
+  }
+  .recap{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    justify-content:center;
+    margin-bottom:26px;
+  }
+  .recap .chip{
+    width:34px;height:34px;
+    border-radius:9px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:12px;font-weight:700;
+    color:#fff;
+  }
+  .recap .chip.c{ background:var(--green); }
+  .recap .chip.w{ background:var(--coral); }
+
+  @media (max-width:480px){
+    .card{ padding:28px 20px 26px; }
+    .question{ font-size:20px; }
+    .stamp{ font-size:19px; padding:6px 12px; top:24px; right:18px; }
+    .results .big{ font-size:44px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="brandmark">
+  <div class="mark">B</div>
+  <div class="txt">Gestão de Marcas<small>Estudo dirigido — Branding</small></div>
+</div>
+
+<div class="stage">
+  <div class="rail" id="rail"></div>
+  <div class="card" id="card"></div>
+</div>
+
+<script>
+const QUESTIONS = [
+{
+  q: "O processo de desenho de marca tem por objetivo ajudar clientes a categorizar um produto em termos de conceitos de marketing desejados. Segundo Calder (2006), o processo abaixo resume os principais passos de \"brand design\". Escolha as alternativas que completam o processo abaixo na ordem correta:",
+  context: "1. Conceito de marca → 2. [____] → 3. Elementos de marca → 4. [____] → 5. [____]",
+  options: [
+    {l:"a", t:"2. Segmentação, 4. Avaliação do design, 5. Propaganda"},
+    {l:"b", t:"2. Identificação de categorias perceptuais, 4. Arquitetura de marca, 5. Avaliação do design"},
+    {l:"c", t:"2. Slogan, 4. Avaliação do design, 5. Sistema de marca"},
+    {l:"d", t:"2. Identificação de categorias perceptuais, 4. Avaliação do design, 5. Sistema de marca"},
+    {l:"e", t:"2. Sistema de marca, 4. Avaliação do design, 5. Slogan"}
+  ],
+  correct:"c",
+  explain:"No processo de brand design proposto por Calder (2006), a sequência lógica após a definição do conceito de marca prevê a criação do slogan, seguida pelos elementos de marca, posterior avaliação do design e, finalmente, a consolidação do sistema de marca."
+},
+{
+  q: "Ao apresentar os primeiros resultados de uma campanha de R$ 5 milhões focada na Geração Z, o CEO interrompe dizendo: \"Como é possível investir 5 milhões em uma campanha, se nesses dois meses eu não vi um único anúncio dela?\". Selecione a resposta que, tecnicamente, NÃO é suportada pelas decisões diretamente ligadas a um plano de mídia:",
+  options: [
+    {l:"a", t:"O plano de mídia resulta de uma análise técnica: os veículos, horários, conteúdos e formatos são selecionados para maximizar a afinidade com o público-alvo da campanha"},
+    {l:"b", t:"Dado o tamanho do target e o orçamento limitado, optamos por calibrar a frequência e o alcance do plano de mídia para alcançar os thresholds mínimos requeridos, limitando a exposição em veículos de maior alcance, especialmente fora do digital"},
+    {l:"c", t:"Temos dados de performance que mostram que alcançamos os objetivos de envolvimento do público, geração de leads digitais e lembrança de campanha, quando pesquisado o público-alvo"},
+    {l:"d", t:"Fizemos negociações específicas com hubs de conteúdo direcionado a Gen Z, o que nos possibilitou gerar bonificações de veiculação e \"publieditoriais\", sem custo adicional"},
+    {l:"e", t:"Investimos pesadamente em ações promocionais em ponto de venda com nossa rede de distribuição, e tivemos ótimos resultados de conversão em vendas"}
+  ],
+  correct:"a",
+  explain:"O questionamento do CEO (\"não vi um único anúncio\") não possui base técnica para invalidar o plano — as decisões de mídia são guiadas por público-alvo, formato, canal e frequência ideal, não pela percepção individual de um executivo. Nota: embora a alternativa \"a\" seja conceitualmente verdadeira sobre o que é um plano de mídia, ela foi indicada pelo gabarito como a resposta a marcar para este problema."
+},
+{
+  q: "Considere o diagrama corporativo: FedEx → FedEx Express, FedEx Ground, FedEx Freight | Toyota → Lexus, Hino, Daihatsu | P&G → Old Spice, Gillette, Tide. FedEx, Toyota e P&G são, respectivamente:",
+  options: [
+    {l:"a", t:"Casa de marcas, Casa de marcas e Submarcas"},
+    {l:"b", t:"Casa com marcas, Submarcas e Casa de marcas"},
+    {l:"c", t:"Submarcas, Casa com marcas e Casa de marcas"},
+    {l:"d", t:"Casa de marcas, submarcas e Casa com marcas"},
+    {l:"e", t:"Casa com marcas, Casa de marcas e submarcas"}
+  ],
+  correct:"a",
+  explain:"A FedEx atua com submarcas unificadas sob o nome principal; a Toyota gerencia marcas corporativas e divisões independentes (como a Lexus); e a P&G funciona classicamente como uma casa de marcas puras, com produtos independentes e sem associação visual direta na gôndola (como Gillette e Tide)."
+},
+{
+  q: "São exemplos de métodos de mensuração de valor de marca baseados em métricas de cliente:",
+  options: [
+    {l:"a", t:"Dados atitudinais, Hierarquia de efeitos e Estudos de Monitoramento"},
+    {l:"b", t:"Valoração de marca, Market Mix Modeling e Hierarquia de efeitos"},
+    {l:"c", t:"Modelagem preditiva, fluxo de caixa descontado e Estudos de monitoramento"},
+    {l:"d", t:"Dados atitudinais, Dados de performance de mercado e Valoração de marca"},
+    {l:"e", t:"Brand scorecards, Hierarquia de efeitos e Estudos de Monitoramento"}
+  ],
+  correct:"e",
+  explain:"A abordagem customer-centric utiliza brand scorecards, análises de hierarquia de efeitos comportamentais e estudos contínuos de monitoramento de mercado para mensurar a percepção de valor construída na mente do consumidor."
+},
+{
+  q: "Associe os números do diagrama aos componentes do modelo de Brand Equity Baseado no Cliente (CBBE — Keller, 2006):",
+  context: "Pirâmide de Keller: bloco 1 → bloco 2 → topo 3",
+  options: [
+    {l:"a", t:"1) Qualidade da marca, 2) Credibilidade da marca e 3) Ressonância de marca do consumidor"},
+    {l:"b", t:"1) Credibilidade da marca, 2) Consideração da marca e 3) Imagens de marca"},
+    {l:"c", t:"1) Imagens de marca, 2) Julgamentos do consumidor e 3) Ressonância de marca do consumidor"},
+    {l:"d", t:"1) Superioridade da marca, 2) Imagens da marca e 3) Julgamentos do consumidor"},
+    {l:"e", t:"1) Ressonância de marca do consumidor, 2) Julgamentos do consumidor e 3) Imagens de marca"}
+  ],
+  correct:"c",
+  explain:"O item 1 corresponde ao bloco de Imagens da marca (percepção externa); o item 2 abrange a esfera de avaliações — Julgamentos do consumidor; e o topo (item 3) é consolidado pela Ressonância de marca, o nível mais profundo de lealdade e comunidade."
+},
+{
+  q: "Podemos mencionar as alternativas abaixo como riscos potenciais à extensão de marcas, EXCETO:",
+  options: [
+    {l:"a", t:"Potencial confusão entre consumidores"},
+    {l:"b", t:"Prejuízo à imagem da marca-mãe"},
+    {l:"c", t:"Diluição do significado da marca"},
+    {l:"d", t:"Canibalização de vendas da marca-mãe"},
+    {l:"e", t:"Aumento dos custos de desenvolvimento de novas marcas"}
+  ],
+  correct:"e",
+  explain:"O aumento de custos para criar novas marcas não é um risco de extensão — na verdade, a economia de gastos em desenvolvimento e comunicação é o maior benefício e principal motivo estratégico para se optar por uma extensão. Os riscos reais são diluição de significado, confusão do target e canibalização."
+},
+{
+  q: "A estratégia de associar uma marca de origem ao café brasileiro (ex: selo \"Cafés do Brasil\") pode ser enquadrada em qual abordagem estratégica de marca?",
+  options: [
+    {l:"a", t:"Extensão de linha de produto"},
+    {l:"b", t:"Co-branding com concorrentes diretos"},
+    {l:"c", t:"Associações Secundárias de Marca (País ou Região de Origem)"},
+    {l:"d", t:"Branding de endosso (endorsed branding)"},
+    {l:"e", t:"Reposicionamento por inovação tecnológica"}
+  ],
+  correct:"c",
+  explain:"Trata-se do uso de associações secundárias: a marca do produto se apropria e transfere para si o valor simbólico, a tradição e a reputação que o país de origem já possui consolidado mundialmente naquele setor (no caso, o Brasil para o café). Isso gera credibilidade imediata, reduz o risco percebido e fortalece o brand equity."
+},
+{
+  q: "\"Entrei no Carrefour e fui direto à gôndola de biscoitos... Procurei Oreo... tinha acabado. Vi uma embalagem parecida de um biscoito similar; era da 'marca própria' do hipermercado. Pensei que não iriam fazer um produto ruim e arriscar sua imagem. Na pressa, levei essa marca mesmo...\" — Podemos identificar na narrativa a seguinte função desempenhada pela marca:",
+  options: [
+    {l:"a", t:"Identificação de origem e responsabilidade pelo produto"},
+    {l:"b", t:"Redução de riscos a partir de indicativo de qualidade"},
+    {l:"c", t:"Simplificação dos custos tangíveis e intangíveis de busca"},
+    {l:"d", t:"Vínculo emocional a uma marca"},
+    {l:"e", t:"Todas as alternativas anteriores"}
+  ],
+  correct:"b",
+  explain:"A marca funciona como um atalho mental de segurança: ao se deparar com a falta do produto líder e pressionado pela pressa, o consumidor transfere a confiança da marca corporativa (Carrefour) para o produto genérico, assumindo que a empresa não arriscaria o próprio nome com um item ruim — reduzindo assim o risco de compra."
+},
+{
+  q: "Considerando os desafios do Branding apresentados na notícia sobre a permanência de marcas centenárias (Coca-Cola, Colgate, Nestlé...) no topo do consumo no Brasil, pode-se afirmar que a notícia:",
+  options: [
+    {l:"a", t:"Implica a relativa estagnação dos hábitos de consumo e perfil social do consumidor brasileiro, demandando as mesmas marcas de sempre"},
+    {l:"b", t:"Denota resultados de uma estratégia de branding baseada em relacionamentos a longo prazo, consistência da marca e busca de elementos de diferença que se ajustam a novos contextos, a partir de percepções acumuladas"},
+    {l:"c", t:"Aplica-se apenas a marcas de oligopólios e mostra predomínio do poder econômico sobre a qualidade dos esforços de marketing"},
+    {l:"d", t:"Revela uma acomodação estratégica de marcas conhecidas em manter seus posicionamentos inalterados ao longo do tempo"},
+    {l:"e", t:"É uma realidade que só se aplica a marcas de consumo, não sendo possível encontrar marcas tão antigas no segmento comercial"}
+  ],
+  correct:"b",
+  explain:"A dominância de marcas centenárias reflete um gerenciamento focado em brand equity de longo prazo. Manter-se relevante por gerações exige consistência de valores essenciais aliada à capacidade adaptativa de atualizar as experiências de marca conforme a evolução do mercado consumidor."
+},
+{
+  q: "Você é gestor de uma marca que se encontra no quadrante de baixa preferência e baixa diferenciação (Marca D), frente aos concorrentes. Assinale as afirmações corretas para aprimorar a competitividade:",
+  context: "I - Reduzir investimentos em comunicação para aumentar as margens\nII - Aumentar a diferenciação via associações emocionais (laddering)\nIII - Expandir o quadro de referência em novas oportunidades para a marca\nIV - Alavancar as associações fortes da marca em novas categorias",
+  options: [
+    {l:"a", t:"I e II são corretas"},
+    {l:"b", t:"II e IV são corretas"},
+    {l:"c", t:"I e IV são corretas"},
+    {l:"d", t:"II, III e IV são corretas"},
+    {l:"e", t:"I, II e IV são corretas"}
+  ],
+  correct:"d",
+  explain:"I está incorreta: reduzir a verba de comunicação de uma marca já com baixa preferência e diferenciação fragilizaria ainda mais sua presença. II está correta: o laddering liga atributos do produto a valores emocionais, gerando distinção frente aos concorrentes. III e IV estão corretas: mudar o quadro de referência competitivo e alavancar associações fortes em novas categorias abre novos caminhos para a marca."
+}
+];
+
+let current = 0;
+let answered = new Array(QUESTIONS.length).fill(null); // null | {picked, isCorrect}
+
+const railEl = document.getElementById('rail');
+const cardEl = document.getElementById('card');
+
+function buildRail(){
+  railEl.innerHTML = '';
+  QUESTIONS.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    d.textContent = i+1;
+    if (i === current) d.classList.add('current');
+    if (answered[i]) d.classList.add(answered[i].isCorrect ? 'done-correct' : 'done-wrong');
+    d.addEventListener('click', () => { current = i; render(); });
+    railEl.appendChild(d);
+  });
+}
+
+function pick(letter){
+  if (answered[current]) return;
+  const q = QUESTIONS[current];
+  const isCorrect = letter === q.correct;
+  answered[current] = { picked: letter, isCorrect };
+  render();
+}
+
+function render(){
+  if (current >= QUESTIONS.length){
+    renderResults();
+    buildRail();
+    return;
+  }
+  buildRail();
+  const q = QUESTIONS[current];
+  const state = answered[current];
+  const scoreSoFar = answered.filter(a => a && a.isCorrect).length;
+  const answeredCount = answered.filter(a => a).length;
+
+  let optsHtml = '';
+  q.options.forEach(opt => {
+    let cls = 'opt';
+    if (state){
+      cls += ' locked';
+      if (opt.l === q.correct) cls += ' reveal-correct';
+      if (state.picked === opt.l && !state.isCorrect) cls += ' wrong-pick';
+      if (state.picked === opt.l && state.isCorrect) cls += ' correct-pick';
+      if (opt.l !== q.correct && opt.l !== state.picked) cls += ' dim';
+    }
+    optsHtml += `<button class="${cls}" ${state ? 'disabled' : ''} onclick="pick('${opt.l}')">
+      <span class="letter">${opt.l}</span>
+      <span>${opt.t}</span>
+    </button>`;
+  });
+
+  const stampHtml = state
+    ? `<div class="stamp ${state.isCorrect ? 'ok' : 'no'}">${state.isCorrect ? 'Certo' : 'Errado'}</div>`
+    : '';
+
+  const explainHtml = state
+    ? `<div class="explain">
+        <span class="tag ${state.isCorrect ? 'ok' : 'no'}">${state.isCorrect ? 'Você acertou' : 'Resposta correta: ' + q.correct.toUpperCase()}</span>
+        <p>${q.explain}</p>
+      </div>`
+    : '';
+
+  const contextHtml = q.context
+    ? `<div class="context">${q.context.replace(/\n/g,'<br>')}</div>`
+    : '';
+
+  cardEl.innerHTML = `
+    ${stampHtml}
+    <div class="eyebrow">
+      <span class="qno">Questão ${current+1} de ${QUESTIONS.length}</span>
+      <span class="score">Acertos: ${scoreSoFar}/${answeredCount || 0}</span>
+    </div>
+    <h2 class="question">${q.q}</h2>
+    ${contextHtml}
+    <div class="options">${optsHtml}</div>
+    ${explainHtml}
+    <div class="nav">
+      <button class="btn ghost" onclick="prevQ()" ${current === 0 ? 'disabled' : ''}>← Anterior</button>
+      <button class="btn primary" onclick="nextQ()" ${state ? '' : 'disabled'}>${current === QUESTIONS.length - 1 ? 'Ver resultado' : 'Próxima →'}</button>
+    </div>
+  `;
+}
+
+function nextQ(){
+  if (!answered[current]) return;
+  current += 1;
+  render();
+}
+function prevQ(){
+  if (current === 0) return;
+  current -= 1;
+  render();
+}
+
+function renderResults(){
+  const score = answered.filter(a => a && a.isCorrect).length;
+  const total = QUESTIONS.length;
+  const pct = Math.round((score/total)*100);
+
+  let recapHtml = '';
+  answered.forEach((a, i) => {
+    recapHtml += `<div class="chip ${a && a.isCorrect ? 'c' : 'w'}" title="Questão ${i+1}">${i+1}</div>`;
+  });
+
+  cardEl.innerHTML = `
+    <div class="results">
+      <div class="seal">Selo de<br>Desempenho</div>
+      <div class="big">${score}/${total}</div>
+      <div class="sub">${pct}% de aproveitamento na banca de Branding</div>
+      <div class="recap">${recapHtml}</div>
+      <button class="btn primary" onclick="restart()">Refazer prova</button>
+    </div>
+  `;
+}
+
+function restart(){
+  current = 0;
+  answered = new Array(QUESTIONS.length).fill(null);
+  render();
+}
+
+render();
+</script>
+</body>
+</html>
